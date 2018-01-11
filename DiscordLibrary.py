@@ -4,15 +4,15 @@ import asyncio
 import random
 import time
 import datetime
-import sqlite3
+#import sqlite3
 
 '''
 In this code I'm always trying to catch as many "bugs" as possible to prevent users from spamming lots of errors into my console
 This bot's code is just so cheap and poor, that I don't even care leaking it
 '''
 
-conn = sqlite3.connect('DiscordLibrary.db')
-cursor = conn.cursor()
+#conn = sqlite3.connect('DiscordLibrary.db')
+#cursor = conn.cursor()
 
 bot = commands.Bot(command_prefix = 'dl ')
 bot.remove_command('help') # removed the shitty default help command
