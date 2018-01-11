@@ -4,9 +4,14 @@ import asyncio
 import random
 import time
 import datetime
+import sqlite3
 
 bot = commands.Bot(command_prefix = 'dl ')
 bot.remove_command('help') # removed the shitty default help command
+
+conn = sqlite3.connect('DiscordLibrary.db')
+cursor = conn.cursor()
+cursor.execute('CREATE TABLE IF NOT EXISTS Guilds(GuildID INTEGER, Description TEXT, BannerURL TEXT)')
 
 @bot.event
 async def on_ready():
