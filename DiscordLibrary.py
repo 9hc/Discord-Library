@@ -4,15 +4,6 @@ import asyncio
 import random
 import time
 import datetime
-#import sqlite3
-
-'''
-In this code I'm always trying to catch as many "bugs" as possible to prevent users from spamming lots of errors into my console
-This bot's code is just so cheap and poor, that I don't even care leaking it
-'''
-
-#conn = sqlite3.connect('DiscordLibrary.db')
-#cursor = conn.cursor()
 
 bot = commands.Bot(command_prefix = 'dl ')
 bot.remove_command('help') # removed the shitty default help command
@@ -27,7 +18,7 @@ async def on_ready():
     await bot.change_presence(status = discord.Status.online, game = game)
 
 @bot.event
-async def on_guild_join(guild):
+async def on_guild_join(guild): # logs when a guild was added
 	bot_join = discord.Embed(title = 'Joined guild', color = 0x8DFF50)
 	bot_join.add_field(name = 'Guild Name', value = '`' + str(guild.name) + '`')
 	bot_join.add_field(name = 'Guild Owner', value = '`' + str(guild.owner) + '|' + str(guild.owner.id) + '`')
@@ -40,7 +31,7 @@ async def on_guild_join(guild):
 	await channel.send(embed = bot_join)
 
 @bot.event
-async def on_guild_remove(guild):
+async def on_guild_remove(guild): # logs when a guild was removed
 	bot_leave = discord.Embed(title = 'Left guild', color = 0xCD0000)
 	bot_leave.add_field(name = 'Guild Name', value = '`' + str(guild.name) + '`')
 	bot_leave.add_field(name = 'Guild Owner', value = '`' + str(guild.owner) + '|' + str(guild.owner.id) + '`')
@@ -61,24 +52,17 @@ async def help(ctx):
 	if ctx.author.bot == True:
 		return
 
-	help_embed = discord.Embed(title = 'DiscordLibrary', description = 'I\'m a bot dedicated to bumping servers on their staff behalfs.', color = 0x00EFEB)
-	help_embed.add_field(name = 'Written in', value = 'Python3.6.2')
-	help_embed.add_field(name = 'Library', value = 'discord.py-rewrite')
-	help_embed.add_field(name = 'Commands', value = '`dl help` - shows this message.\n`dl bump` - bumps the server on the list.\n`dl links` - provides useful links.', inline = False)
+	help_embed = discord.Embed(title = 'DiscordLibrary', color = 0x00EFEB)
+	help_embed.add_field(name = 'Commands', value = '`dl help` - Shows this message.\n`dl links` - Provides useful links.\n`dl bump` - Bumps the server on the list.')
+	help_embed.set_thumbnail(url = str(bot.user.avatar))
 
 	try:
 		await ctx.send(embed = help_embed)
 	except:
 		try:
-			await ctx.send(':x: **I don\'t seem to have `Embed Links` permission. Please fix my permissions and try again.**')
+			await ctx.send(':x: **I don\'t seem to have `Embed Links` permission.**')
 		except:
-			try:
-				if ctx.author.guild_permissions.manage_roles:
-					await ctx.message.author.send('**I don\'t seem to have `Send Messages` permission in that channel. Please fix my permissions and try again.**')
-				else:
-					await ctx.message.author.send('**I don\'t seem to have `Send Messages` permission in that channel. Please ask the server administrator to fix my permissions.**')
-			except:
-				return
+			return
 
 @bot.command(pass_context = True)
 async def links(ctx):
@@ -88,43 +72,38 @@ async def links(ctx):
 	if ctx.author.bot == True:
 		return
 
-	invite_link = discord.Embed(description = '[Add Me](https://discord.gg/achfbu4)\n[Official Discord](https://discord.gg/achfbu4)', color = 0x00EFEB)
+	links = discord.Embed(description = '[Add Me](https://discord.gg/achfbu4)\n[Official Discord](https://discord.gg/achfbu4)', color = 0x00EFEB)
 
 	try:
-		await ctx.send(embed = invite_link)
+		await ctx.send(embed = links)
 	except:
 		try:
 			await ctx.send(':x: **I don\'t seem to have `Embed Links` permission. Please fix my permissions and try again.**')
 		except:
-			try:
-				if ctx.author.guild_permissions.manage_roles:
-					await ctx.message.author.send('**I don\'t seem to have `Send Messages` permission in that channel. Please fix my permissions and try again.**')
-				else:
-					await ctx.message.author.send('**I don\'t seem to have `Send Messages` permission in that channel. Please ask the server administrator to fix my permissions.**')
-			except:
-				return
+			return
 
 @bot.command(pass_context = True)
 async def bump(ctx):
 	guild = bot.get_guild(ctx.guild.id)
 	print(str(ctx.author.name) + ' [' + str(ctx.author.id) + ']: ' + str(ctx.guild.name) + ' [' + str(ctx.guild.id) + ']: bump')
 
-	if ctx.author.bot == True:
+	if ctx.author.bot == True: # avoiding automated bumps
 		return await ctx.send(':warning: **Please don\'t automate bumps, otherwise I will be permanentaly blacklisted from this server.**')
 
-	if isinstance(ctx.channel, discord.DMChannel):
+	if isinstance(ctx.channel, discord.DMChannel): # can't bump DMs, cause why would you even...
 		return await ctx.send(':thinking: **Hmmm... Bumping DMs? This doesn\'t seem right...**')
 
-	if not ctx.author.guild_permissions.manage_guild:
+	if not ctx.author.guild_permissions.manage_guild: # only members with manage server permission can bump servers
 		try:
 			await ctx.send(':x: **You need to have `Manage Server` permission in order to bump.**')
 		except:
 			return
 	else:
 		try:
+			# creates an invite of the top most text channel
 			c_invite = await guild.text_channels[0].create_invite(max_age = 21600, reason = 'Bumped the guild.', unique = False)
 
-			try:
+			try: # shows "typing" in a called channel if it has send messages permission in it
 				await ctx.trigger_typing()
 			except:
 				pass
@@ -139,10 +118,14 @@ async def bump(ctx):
 
 			channel = bot.get_channel(390204229987336193)
 			await channel.send(embed = bump_bump)
-			await ctx.send('**Bumped!** :thumbsup:')
+			try:
+				await ctx.send('**Bumped!** :thumbsup:')
+			except:
+				pass
 		except:
-			await ctx.send(':x: **I don\'t seem to have `Create Instant Invite` permission.**')
+			await ctx.send(':x: **I need the `Create Instant Invite` permission of the top most text channel that I\'m able to reach with my current permissions.**')
 
+# owner only command: bot leaves a server specified by it's id
 @bot.command()
 async def leave(ctx, *args):
 	if ctx.author.id != 140898654180474882:
