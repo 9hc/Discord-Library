@@ -103,7 +103,7 @@ async def bump(ctx):
 	else:
 		try:
 			# creates an invite of the top most text channel
-			c_invite = await guild.text_channels[0].create_invite(max_age = 21600, reason = 'Bumped the guild.', unique = False)
+			c_invite = await guild.text_channels[0].create_invite(reason = 'Used for bumping server.', unique = False)
 
 			try: # shows "typing" in a called channel if it has send messages permission in it
 				await ctx.trigger_typing()
