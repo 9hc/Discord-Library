@@ -14,6 +14,7 @@ async def on_ready():
     print(bot.user.name)
     print(bot.user.id)
     print('---------')
+    time.sleep(1)
     game = discord.Game(name = 'dl help')
     await bot.change_presence(status = discord.Status.online, game = game)
 
