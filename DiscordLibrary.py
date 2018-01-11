@@ -56,7 +56,7 @@ async def help(ctx):
 
 	help_embed = discord.Embed(title = 'DiscordLibrary', color = 0x00EFEB)
 	help_embed.add_field(name = 'Commands', value = '`dl help` - Shows this message.\n`dl links` - Provides useful links.\n`dl bump` - Bumps the server on the list.')
-	help_embed.set_thumbnail(url = str(bot.user.avatar))
+	help_embed.set_thumbnail(url = str(bot.user.avatar_url))
 
 	try:
 		await ctx.send(embed = help_embed)
