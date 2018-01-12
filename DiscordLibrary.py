@@ -11,7 +11,7 @@ bot.remove_command('help') # removed the shitty default help command
 
 conn = sqlite3.connect('DiscordLibrary.db')
 cursor = conn.cursor()
-cursor.execute('CREATE TABLE IF NOT EXISTS Guilds(GuildID INTEGER, LatestBump DATETIME, Description TEXT, BannerURL TEXT)')
+cursor.execute('CREATE TABLE IF NOT EXISTS Guilds(GuildID TEXT unique, LatestBump TEXT, Description TEXT, BannerURL TEXT)')
 
 @bot.event
 async def on_ready():
@@ -110,31 +110,35 @@ async def bump(ctx):
 		except:
 			return
 	else:
-		try:
+		#try:
 			# creates an invite of the top most text channel
-			c_invite = await guild.text_channels[0].create_invite(reason = 'Used for bumping server.', unique = False)
+		c_invite = await guild.text_channels[0].create_invite(reason = 'Used for bumping server.', unique = False)
 
-			try: # shows "typing" in a called channel if it has send messages permission in it
-				await ctx.trigger_typing()
-			except:
-				pass
-
-			bump_bump = discord.Embed(color = 0x00EFEB)
-			bump_bump.add_field(name = 'Guild Name', value = '`' + str(guild.name) + '`')
-			bump_bump.add_field(name = 'Guild Owner', value = '`' + str(guild.owner) + '`')
-			bump_bump.add_field(name = 'Members', value = str(len(guild.members)))
-			bump_bump.add_field(name = 'Invite Link', value = str(c_invite), inline = False)
-			bump_bump.set_thumbnail(url = str(guild.icon_url))
-			bump_bump.set_footer(text = 'Guild ID: ' + str(guild.id))
-
-			channel = bot.get_channel(390204229987336193)
-			await channel.send(embed = bump_bump)
-			try:
-				await ctx.send('**Bumped!** :thumbsup:')
-			except:
-				pass
+		try: # shows "typing" in a called channel if it has send messages permission in it
+			await ctx.trigger_typing()
 		except:
-			await ctx.send(':x: **I need the `Create Instant Invite` permission of the top most text channel that I\'m able to reach with my current permissions.**')
+			pass
+
+		bump_bump = discord.Embed(color = 0x00EFEB)
+		bump_bump.add_field(name = 'Guild Name', value = '`' + str(guild.name) + '`')
+		bump_bump.add_field(name = 'Guild Owner', value = '`' + str(guild.owner) + '`')
+		bump_bump.add_field(name = 'Members', value = str(len(guild.members)))
+		bump_bump.add_field(name = 'Invite Link', value = str(c_invite), inline = False)
+		bump_bump.set_thumbnail(url = str(guild.icon_url))
+		bump_bump.set_footer(text = 'Guild ID: ' + str(guild.id))
+
+		channel = bot.get_channel(390204229987336193)
+		await channel.send(embed = bump_bump)
+
+		cursor.execute('INSERT INTO Guilds(GuildID) VALUES(?)', (str(guild.id)))
+		conn.commit()
+
+		try:
+			await ctx.send('**Bumped!** :thumbsup:')
+		except:
+			return
+		#except:
+			#await ctx.send(':x: **I need the `Create Instant Invite` permission of the top most text channel that I\'m able to reach with my current permissions.**')
 
 # owner only command: bot leaves a server specified by it's id
 @bot.command()
