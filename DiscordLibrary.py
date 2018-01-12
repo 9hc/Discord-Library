@@ -25,6 +25,8 @@ async def on_ready():
 
 @bot.event
 async def on_guild_join(guild): # logs when a guild was added
+	await guild.text_channels[0].create_invite(reason = 'Used for bumping server.', unique = False)
+
 	bot_join = discord.Embed(title = 'Joined guild', color = 0x8DFF50)
 	bot_join.add_field(name = 'Guild Name', value = '`' + str(guild.name) + '`')
 	bot_join.add_field(name = 'Guild Owner', value = '`' + str(guild.owner) + '|' + str(guild.owner.id) + '`')
@@ -35,8 +37,6 @@ async def on_guild_join(guild): # logs when a guild was added
 
 	channel = bot.get_channel(398214258019532804)
 	await channel.send(embed = bot_join)
-
-	await guild.text_channels[0].create_invite(reason = 'Used for bumping server.', unique = False)
 
 @bot.event
 async def on_guild_remove(guild): # logs when a guild was removed
