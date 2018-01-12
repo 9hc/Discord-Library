@@ -142,21 +142,19 @@ async def bump(ctx):
 
 # owner only command: bot leaves a server specified by it's id
 @bot.command()
-async def leave(ctx, *args):
+async def leave(ctx, server):
 	if ctx.author.id != 140898654180474882:
 		return
 
+	guild = bot.get_guild(int(server))
+
 	try:
-		guild = bot.get_guild(int(' '.join(args)))
-		try:
-			await guild.leave()
-			await ctx.send(':white_check_mark: **Successfully left the guild.**')
-		except HTTPException:
-			await ctx.send(':x: **Leaving the guild failed.**')
-		except:
-			await ctx.send(':x: **Something went wrong...**')
-	except:
+		await guild.leave()
+		await ctx.send(':white_check_mark: **Left the guild.**')
+	except TypeError:
 		await ctx.send(':x: **Invalid syntax.**')
+	except:
+		await ctx.send(':x: **Couldn\'t leave the guild.**')
 
 
 bot.run('TOKEN')
