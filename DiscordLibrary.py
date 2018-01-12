@@ -11,7 +11,7 @@ bot.remove_command('help') # removed the shitty default help command
 
 conn = sqlite3.connect('DiscordLibrary.db')
 cursor = conn.cursor()
-cursor.execute('CREATE TABLE IF NOT EXISTS Guilds(GuildID TEXT unique, LatestBump TEXT, Description TEXT, BannerURL TEXT)')
+cursor.execute('CREATE TABLE IF NOT EXISTS Guilds(GuildID TEXT, LatestBump TEXT, Description TEXT, BannerURL TEXT)')
 
 @bot.event
 async def on_ready():
