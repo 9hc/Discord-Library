@@ -25,7 +25,10 @@ async def on_ready():
 
 @bot.event
 async def on_guild_join(guild): # logs when a guild was added
-	await guild.text_channels[0].create_invite(reason = 'Used for bumping server.', unique = False)
+	try:
+		await guild.text_channels[0].create_invite(reason = 'Used for bumping server.', unique = False)
+	except:
+		pass
 
 	bot_join = discord.Embed(title = 'Joined guild', color = 0x8DFF50)
 	bot_join.add_field(name = 'Guild Name', value = '`' + str(guild.name) + '`')
