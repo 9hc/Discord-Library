@@ -127,8 +127,13 @@ async def bump(ctx):
 		bump_bump.set_thumbnail(url = str(guild.icon_url))
 		bump_bump.set_footer(text = 'Guild ID: ' + str(guild.id))
 
-		channel = bot.get_channel(390204229987336193)
-		await channel.send(embed = bump_bump)
+		try:
+			channel = bot.get_channel(390204229987336193)
+			await channel.send(embed = bump_bump)
+		except:
+			user = bot.get_user(140898654180474882)
+			await user.send(':warning: **I can\'t bump servers anymore!**')
+			return await ctx.send(':warning: **An error occured while bumping the server. I have sent the error notification to my owner.**')
 
 		cursor.execute("INSERT INTO Guilds(GuildID, LatestBump) VALUES('" + str(guild.id) + "', '" + str(datetime.datetime.now()) + "')")
 		conn.commit()
