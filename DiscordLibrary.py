@@ -104,6 +104,11 @@ async def bump(ctx):
 	if isinstance(ctx.channel, discord.DMChannel): # can't bump DMs, cause why would you even...
 		return await ctx.send(':thinking: **Hmmm... Bumping DMs? This doesn\'t seem right...**')
 
+	try: # shows "typing" in a called channel if it has send messages permission in it
+		await ctx.trigger_typing()
+	except:
+		pass
+
 	if not ctx.author.guild_permissions.manage_guild: # only members with manage server permission can bump servers
 		try:
 			await ctx.send(':x: **You need to have `Manage Server` permission in order to bump.**')
@@ -113,11 +118,6 @@ async def bump(ctx):
 		#try:
 			# creates an invite of the top most text channel
 		c_invite = await guild.text_channels[0].create_invite(reason = 'Used for bumping server.', unique = False)
-
-		try: # shows "typing" in a called channel if it has send messages permission in it
-			await ctx.trigger_typing()
-		except:
-			pass
 
 		bump_bump = discord.Embed(color = 0x00EFEB)
 		bump_bump.add_field(name = 'Guild Name', value = '`' + str(guild.name) + '`')
