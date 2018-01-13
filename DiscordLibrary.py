@@ -75,6 +75,13 @@ async def help(ctx):
 		except:
 			return
 
+@bot.command()
+async def ping(ctx):
+	pingtime = time.time()
+	pingms = await ctx.send(':ping_pong:')
+	ping = (time.time() - pingtime) * 1000
+	await pingms.edit(content = '**{} ms**'.format(int(ping)))
+
 @bot.command(pass_context = True)
 async def links(ctx):
 	guild = bot.get_guild(ctx.guild.id)
