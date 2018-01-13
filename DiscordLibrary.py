@@ -130,7 +130,7 @@ async def bump(ctx):
 		channel = bot.get_channel(390204229987336193)
 		await channel.send(embed = bump_bump)
 
-		cursor.execute("INSERT INTO Guilds(GuildID, LatestBump) VALUES('" + str(guild.id) + "', '" + datetime.now() + "')")
+		cursor.execute("INSERT INTO Guilds(GuildID, LatestBump) VALUES('" + str(guild.id) + "', '" + str(datetime.datetime.now()) + "')")
 		conn.commit()
 
 		try:
