@@ -78,9 +78,9 @@ async def help(ctx):
 @bot.command()
 async def ping(ctx):
 	pingtime = time.time()
-	pingms = await ctx.send(':ping_pong:')
+	pingms = await ctx.send('*Pinging...*')
 	ping = (time.time() - pingtime) * 1000
-	await pingms.edit(content = '**{} ms**'.format(int(ping)))
+	await pingms.edit(content = ':ping_pong: **{} ms**'.format(int(ping)))
 
 @bot.command(pass_context = True)
 async def links(ctx):
