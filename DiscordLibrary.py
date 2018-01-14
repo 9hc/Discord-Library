@@ -13,6 +13,12 @@ conn = sqlite3.connect('DiscordLibrary.db')
 cursor = conn.cursor()
 cursor.execute("CREATE TABLE IF NOT EXISTS Guilds(GuildID TEXT, LatestBump TEXT, Description TEXT, BannerURL TEXT)")
 
+def check(sql):
+    cursor.execute(sql)
+    conn.commit()
+    global data
+    data = cursor.fetchall()
+
 @bot.event
 async def on_ready():
     print('Logged in as')
@@ -105,9 +111,6 @@ async def bump(ctx):
 	guild = bot.get_guild(ctx.guild.id)
 	print(str(ctx.author.name) + ' [' + str(ctx.author.id) + ']: ' + str(ctx.guild.name) + ' [' + str(ctx.guild.id) + ']: bump')
 
-	if ctx.author.bot == True: # avoiding automated bumps
-		return await ctx.send(':warning: **Please don\'t automate bumps, otherwise I will be permanentaly blacklisted from this server.**')
-
 	if isinstance(ctx.channel, discord.DMChannel): # can't bump DMs, cause why would you even...
 		return await ctx.send(':thinking: **Hmmm... Bumping DMs? This doesn\'t seem right...**')
 
@@ -115,6 +118,9 @@ async def bump(ctx):
 		await ctx.trigger_typing()
 	except:
 		pass
+
+	if ctx.author.bot == True: # avoiding automated bumps
+		return await ctx.send(':warning: **Please don\'t automate bumps, otherwise I will be permanentaly blacklisted from this server.**')
 
 	if not ctx.author.guild_permissions.manage_guild: # only members with manage server permission can bump servers
 		try:
@@ -140,15 +146,24 @@ async def bump(ctx):
 		except:
 			user = bot.get_user(140898654180474882)
 			await user.send(':warning: **I can\'t bump servers anymore!**')
-			return await ctx.send(':warning: **An error occured while bumping the server. I have sent the error notification to my owner.**')
+			return await ctx.send(':warning: **An error occured while bumping the server.\n\n`-` I have just informed the developers of this situation.\n`-` Please do not spam this command, as it will spam my staff with those notifications.**')
 
-		cursor.execute("INSERT INTO Guilds(GuildID, LatestBump) VALUES('" + str(guild.id) + "', '" + str(datetime.datetime.now()) + "')")
-		conn.commit()
+		sql = "SELECT GuildID FROM Guilds WHERE GuildID = '" + str(guild.id) + "'"
+		check(sql)
+		if sql == False:
+			cursor.execute("INSERT INTO Guilds (GuildID, LatestBump) VALUES ('" + str(guild.id) + "', '" + str(datetime.datetime.now()) + "')")
+			conn.commit()
+		else:
+			cursor.execute("UPDATE Guilds SET LatestBump = '" + str(datetime.datetime.now()) + "' WHERE GuildID = '" + str(guild.id) + "'")
+			conn.commit()
 
 		try:
 			await ctx.send('**Bumped!** :thumbsup:')
 		except:
-			return
+			try:
+				await ctx.author.send('**Bumped!** :thumbsup:\n\n**I don\'t seem to have `Send Messages` permission, that is why I am telling you this here.**')
+			except:
+				pass
 		#except:
 		#	await ctx.send(':x: **I need the `Create Instant Invite` permission of the top most text channel that I\'m able to reach with my current permissions.**')
 
