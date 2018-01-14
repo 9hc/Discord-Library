@@ -150,7 +150,7 @@ async def bump(ctx):
 
 		sql = "SELECT GuildID FROM Guilds WHERE GuildID = '" + str(guild.id) + "'"
 		check(sql)
-		if guild.id is not in data[0]:
+		if guild.id not in data[0]:
 			cursor.execute("INSERT INTO Guilds (GuildID, LatestBump) VALUES ('" + str(guild.id) + "', '" + str(datetime.datetime.now()) + "')")
 			conn.commit()
 		else:
