@@ -11,7 +11,7 @@ bot.remove_command('help') # removed the shitty default help command
 
 conn = sqlite3.connect('DiscordLibrary.db')
 cursor = conn.cursor()
-cursor.execute("CREATE TABLE IF NOT EXISTS Guilds(GuildID TEXT, LatestBump TEXT, Description TEXT, BannerURL TEXT)")
+cursor.execute("CREATE TABLE IF NOT EXISTS Guilds(GuildID TEXT unique, LatestBump TEXT, Description TEXT, BannerURL TEXT)")
 
 def check(sql):
     cursor.execute(sql)
@@ -119,6 +119,13 @@ async def bump(ctx):
 	except:
 		pass
 
+	sql = "SELECT LatestBump FROM Guilds WHERE GuildID = '" + str(ctx.guild.id) + "'"
+	check(sql)
+	dbtime = int(sql)
+	now = datetime.datetime.now()
+	difference = now - dbtime
+	hourdifference = difference.hours(6)
+
 	if ctx.author.bot == True: # avoiding automated bumps
 		return await ctx.send(':warning: **Please don\'t automate bumps, otherwise I will be permanentaly blacklisted from this server.**')
 
@@ -128,44 +135,48 @@ async def bump(ctx):
 		except:
 			return
 	else:
-		#try:
+		try:
 			# creates an invite of the top most text channel
-		c_invite = await guild.text_channels[0].create_invite(reason = 'Used for bumping server.', unique = False)
+			c_invite = await guild.text_channels[0].create_invite(reason = 'Used for bumping server.', unique = False)
 
-		bump_bump = discord.Embed(color = 0x00EFEB)
-		bump_bump.add_field(name = 'Guild Name', value = '`' + str(guild.name) + '`')
-		bump_bump.add_field(name = 'Guild Owner', value = '`' + str(guild.owner) + '`')
-		bump_bump.add_field(name = 'Members', value = str(len(guild.members)))
-		bump_bump.add_field(name = 'Invite Link', value = str(c_invite), inline = False)
-		bump_bump.set_thumbnail(url = str(guild.icon_url))
-		bump_bump.set_footer(text = 'Guild ID: ' + str(guild.id))
+			bump_bump = discord.Embed(color = 0x00EFEB)
+			bump_bump.add_field(name = 'Guild Name', value = '`' + str(guild.name) + '`')
+			bump_bump.add_field(name = 'Guild Owner', value = '`' + str(guild.owner) + '`')
+			bump_bump.add_field(name = 'Members', value = str(len(guild.members)))
+			bump_bump.add_field(name = 'Invite Link', value = str(c_invite), inline = False)
+			bump_bump.set_thumbnail(url = str(guild.icon_url))
+			bump_bump.set_footer(text = 'Guild ID: ' + str(guild.id))
 
-		try:
-			channel = bot.get_channel(390204229987336193)
-			await channel.send(embed = bump_bump)
-		except:
-			user = bot.get_user(140898654180474882)
-			await user.send(':warning: **I can\'t bump servers anymore!**')
-			return await ctx.send(':warning: **An error occured while bumping the server.\n\n`-` I have just informed the developers of this situation.\n`-` Please do not spam this command, as it will spam my staff with those notifications.**')
-
-		sql = "SELECT GuildID FROM Guilds WHERE GuildID = '" + str(guild.id) + "'"
-		check(sql)
-		if guild.id not in data[0]:
-			cursor.execute("INSERT INTO Guilds (GuildID, LatestBump) VALUES ('" + str(guild.id) + "', '" + str(datetime.datetime.now()) + "')")
-			conn.commit()
-		else:
-			cursor.execute("UPDATE Guilds SET LatestBump = '" + str(datetime.datetime.now()) + "' WHERE GuildID = '" + str(guild.id) + "'")
-			conn.commit()
-
-		try:
-			await ctx.send('**Bumped!** :thumbsup:')
-		except:
 			try:
-				await ctx.author.send('**Bumped!** :thumbsup:\n\n**I don\'t seem to have `Send Messages` permission, that is why I am telling you this here.**')
+				channel = bot.get_channel(390204229987336193)
+				await channel.send(embed = bump_bump)
 			except:
-				pass
-		#except:
-		#	await ctx.send(':x: **I need the `Create Instant Invite` permission of the top most text channel that I\'m able to reach with my current permissions.**')
+				user = bot.get_user(140898654180474882)
+				await user.send(':warning: **I can\'t bump servers anymore!**')
+				return await ctx.send(':warning: **An error occured while bumping the server.\n\n`-` I have just informed the developers of this situation.\n`-` Please do not spam this command, as it will spam my staff with those notifications.**')
+
+			sql = "SELECT GuildID FROM Guilds WHERE GuildID = '" + str(ctx.guild.id) + "'"
+			check(sql)
+			try:
+				cursor.execute("INSERT INTO Guilds (GuildID, LatestBump) VALUES ('" + str(guild.id) + "', '" + str(datetime.datetime.now()) + "')")
+				conn.commit()
+			except sqlite3.IntegrityError:
+				cursor.execute("UPDATE Guilds SET LatestBump = '" + str(datetime.datetime.now()) + "' WHERE GuildID = '" + str(ctx.guild.id) + "'")
+				conn.commit()
+			except IndexError as e:
+				return await ctx.send(':x: **An error occured while bumping: `' + str(e) + '`**')
+			except:
+				return await ctx.send(':x: **An unexpected error occured. Please report this!**')
+
+			try:
+				await ctx.send('**Bumped!** :thumbsup:')
+			except:
+				try:
+					await ctx.author.send('**Bumped!** :thumbsup:\n\n**I don\'t seem to have `Send Messages` permission, that is why I am telling you this here.**')
+				except:
+					pass
+		except:
+			await ctx.send(':x: **I need the `Create Instant Invite` permission of the top most text channel that I\'m able to reach with my current permissions.**')
 
 # owner only command: bot leaves a server specified by it's id
 @bot.command()
