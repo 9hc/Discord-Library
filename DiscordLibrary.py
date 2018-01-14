@@ -173,12 +173,11 @@ async def leave(ctx, server):
 	if ctx.author.id != 140898654180474882:
 		return
 
-	guild = bot.get_guild(int(server))
-
 	try:
+		guild = bot.get_guild(int(server))
 		await guild.leave()
 		await ctx.send(':white_check_mark: **Left the guild.**')
-	except TypeError:
+	except ValueError:
 		await ctx.send(':x: **Invalid syntax.**')
 	except:
 		await ctx.send(':x: **Couldn\'t leave the guild.**')
